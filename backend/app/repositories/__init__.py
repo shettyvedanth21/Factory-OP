@@ -5,6 +5,7 @@ from app.repositories import (
     device_repo,
     parameter_repo,
     alert_repo,
+    rule_repo,
 )
 
 __all__ = [
@@ -13,4 +14,5 @@ __all__ = [
     "device_repo",
     "parameter_repo",
     "alert_repo",
+    "rule_repo",
 ]

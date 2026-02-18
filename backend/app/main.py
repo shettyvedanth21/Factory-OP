@@ -13,7 +13,7 @@ from app.core.middleware import RequestIDMiddleware
 from app.core.database import check_db_health
 from app.core.redis_client import check_redis_health
 from app.core.influx import check_influx_health
-from app.api.v1 import auth, devices, telemetry, dashboard
+from app.api.v1 import auth, devices, telemetry, dashboard, rules, alerts
 
 logger = get_logger(__name__)
 
@@ -75,6 +75,8 @@ def create_app() -> FastAPI:
     app.include_router(devices.router, prefix="/api/v1")
     app.include_router(telemetry.router, prefix="/api/v1")
     app.include_router(dashboard.router, prefix="/api/v1")
+    app.include_router(rules.router, prefix="/api/v1")
+    app.include_router(alerts.router, prefix="/api/v1")
     
     # Health check endpoint
     @app.get("/health")
