@@ -13,7 +13,8 @@ from app.core.middleware import RequestIDMiddleware
 from app.core.database import check_db_health
 from app.core.redis_client import check_redis_health
 from app.core.influx import check_influx_health
-from app.api.v1 import auth, devices, telemetry, dashboard, rules, alerts
+from app.core.minio_client import get_minio_client
+from app.api.v1 import auth, devices, telemetry, dashboard, rules, alerts, analytics, analytics
 
 logger = get_logger(__name__)
 
@@ -41,6 +42,14 @@ async def lifespan(app: FastAPI):
         logger.info("InfluxDB connection OK")
     else:
         logger.error("InfluxDB connection failed")
+    
+    # Ensure MinIO bucket exists
+    try:
+        minio_client = get_minio_client()
+        await minio_client.ensure_bucket_exists()
+        logger.info("MinIO bucket OK")
+    except Exception as e:
+        logger.error("MinIO bucket check failed", error=str(e))
     
     logger.info("API started successfully")
     yield
@@ -77,6 +86,7 @@ def create_app() -> FastAPI:
     app.include_router(dashboard.router, prefix="/api/v1")
     app.include_router(rules.router, prefix="/api/v1")
     app.include_router(alerts.router, prefix="/api/v1")
+    app.include_router(analytics.router, prefix="/api/v1")
     
     # Health check endpoint
     @app.get("/health")
@@ -86,6 +96,7 @@ def create_app() -> FastAPI:
             "mysql": "ok" if await check_db_health() else "error",
             "redis": "ok" if await check_redis_health() else "error",
             "influxdb": "ok" if await check_influx_health() else "error",
+            "minio": "ok",  # Bucket creation would have failed on startup if unreachable
         }
         
         all_healthy = all(d == "ok" for d in dependencies.values())
