@@ -157,10 +157,14 @@ export const users = {
     api.get<{ data: FactoryUser[] }>('/users').then(r => extractData(r)),
   
   invite: (data: InviteUserRequest) =>
-    api.post<{ data: FactoryUser }>('/users/invite', data).then(r => extractData(r)),
+    api.post<{ data: { id: number; email: string; invite_sent: boolean } }>('/users/invite', data)
+      .then(r => extractData(r)),
   
   updatePermissions: (userId: number, permissions: Record<string, boolean>) =>
     api.patch(`/users/${userId}/permissions`, { permissions }),
+  
+  deactivate: (userId: number) =>
+    api.delete(`/users/${userId}`),
 };
 
 // Dashboard endpoint

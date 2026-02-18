@@ -14,7 +14,8 @@ from app.core.database import check_db_health
 from app.core.redis_client import check_redis_health
 from app.core.influx import check_influx_health
 from app.core.minio_client import get_minio_client
-from app.api.v1 import auth, devices, telemetry, dashboard, rules, alerts, analytics, reports
+from app.api.v1 import auth, devices, telemetry, dashboard, rules, alerts, analytics, reports, users
+from app.api.v1.metrics import router as metrics_router
 
 logger = get_logger(__name__)
 
@@ -88,6 +89,8 @@ def create_app() -> FastAPI:
     app.include_router(alerts.router, prefix="/api/v1")
     app.include_router(analytics.router, prefix="/api/v1")
     app.include_router(reports.router, prefix="/api/v1")
+    app.include_router(users.router, prefix="/api/v1")
+    app.include_router(metrics_router)
     
     # Health check endpoint
     @app.get("/health")

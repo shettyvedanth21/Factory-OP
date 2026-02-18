@@ -7,3 +7,4 @@ export * from './useAlerts';
 export * from './useAnalytics';
 export * from './useReports';
 export * from './useDashboard';
+export * from './useUsers';
