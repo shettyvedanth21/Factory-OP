@@ -1,4 +1,10 @@
 """InfluxDB writer for telemetry data."""
+import sys
+import os
+
+# Add backend directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'backend'))
+
 from datetime import datetime
 from typing import List, Dict, Union
 
