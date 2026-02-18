@@ -133,6 +133,10 @@ export const analytics = {
 
 // Reports endpoints
 export const reports = {
+  list: (params?: { status?: string; page?: number; per_page?: number }) =>
+    api.get<{ data: Report[]; total: number; page: number; per_page: number }>('/reports', { params })
+      .then(r => extractData(r)),
+  
   create: (data: CreateReportRequest) =>
     api.post<{ data: { report_id: string; status: string } }>('/reports', data)
       .then(r => extractData(r)),
@@ -142,6 +146,9 @@ export const reports = {
   
   download: (reportId: string) =>
     api.get(`/reports/${reportId}/download`, { responseType: 'blob' }),
+  
+  delete: (reportId: string) =>
+    api.delete(`/reports/${reportId}`),
 };
 
 // Users endpoints

@@ -1,17 +1,26 @@
 // React Query hooks for reports
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { reports } from '../api/endpoints';
 import { CreateReportRequest } from '../types';
 import { useUIStore } from '../stores/uiStore';
 
 const REPORTS_KEY = 'reports';
 
+export const useReportsList = (params?: { status?: string; page?: number; per_page?: number }) => {
+  return useQuery({
+    queryKey: [REPORTS_KEY, 'list', params],
+    queryFn: () => reports.list(params),
+  });
+};
+
 export const useCreateReport = () => {
   const addNotification = useUIStore((state) => state.addNotification);
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: CreateReportRequest) => reports.create(data),
     onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [REPORTS_KEY] });
       addNotification({
         type: 'success',
         title: 'Report generation started',
@@ -72,6 +81,30 @@ export const useDownloadReport = () => {
       addNotification({
         type: 'error',
         title: 'Failed to download report',
+        message: error.message,
+      });
+    },
+  });
+};
+
+export const useDeleteReport = () => {
+  const addNotification = useUIStore((state) => state.addNotification);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (reportId: string) => reports.delete(reportId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [REPORTS_KEY] });
+      addNotification({
+        type: 'success',
+        title: 'Report deleted',
+        message: 'Report has been deleted successfully',
+      });
+    },
+    onError: (error: any) => {
+      addNotification({
+        type: 'error',
+        title: 'Failed to delete report',
         message: error.message,
       });
     },
